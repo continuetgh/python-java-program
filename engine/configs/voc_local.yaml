@@ -1,0 +1,25 @@
+# Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+# 数据路径
+path: "D:/Yolov5/testyolov5/data/car/"  # dataset root dir
+
+# 注意数据路径分隔符使用【/】,不是【\】
+# 项目不要出现含有中文字符的目录文件或路径，否则会出现很多异常！！！！！！！！
+train:
+  - "D:/path/to/UA-DETRAC/DETRAC-VOC/DETRAC-train-voc/train.txt"
+  - "D:/path/to/UA-DETRAC/DETRAC-VOC/DETRAC-test-voc/test.txt" # 做模型性能测试时，测试集不要加入，避免指标有歧义
+
+val:
+  - "D:/path/to/UA-DETRAC/DETRAC-VOC/DETRAC-test-voc/test.txt"
+
+test:  # test images (optional)
+data_type: voc
+
+# 1.设置类别个数，和要训练的类别名称，ID号从0开始递增
+nc: 4  # number of classes
+names: { 'car': 0, 'bus': 1,  'van': 2,'others': 3 }
+# 2.如果你想合并几个类别进行训练，比如将'[car','bus','van']看作一类，others看作另一类，则
+#nc: 2  # number of classes
+#names: { 'car': 0, 'bus': 0,  'van': 0,'others': 1 }
+# 3.如果你想合并所有类别为一个大类，进行训练： unique表示合并所有类为单独一个类别
+#nc: 1  # number of classes
+#names: { "unique": 0 }

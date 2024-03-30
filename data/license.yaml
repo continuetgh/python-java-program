@@ -1,0 +1,10 @@
+# train and val datasets (image directory or *.txt file with image paths)
+train: D:/Yolov5/testyolov5/data/license/train.txt
+val: D:/Yolov5/testyolov5/data/license/val.txt
+test: D:/Yolov5/testyolov5/data/license/test.txt
+
+# number of classes
+nc: 2
+
+# class names
+names: ['car','space']
