@@ -6,7 +6,8 @@ import json
 import numpy as np
 
 app = Flask(__name__)
-
+# 创建空列表以存储结果
+results_list = []
 # 初始化模型
 model = torch.hub.load('.', 'custom', path='runs/train/exp13/weights/best.pt', source='local')
 LABELS = {0: 'bike', 1: 'car', 2: 'van', 3: 'parking'}  # 替换为实际的映射
@@ -40,38 +41,39 @@ def detect_parking():
     # 提取边界框信息和置信度
     vehicle_boxes = []
     parking_boxes = []
-
-    # 将 Tensor 对象转换为 NumPy 数组
-    def tensor_to_numpy(tensor):
-        return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-
-    # 将结果中的 Tensor 对象转换为 NumPy 数组
     for xyxy, conf, cls in zip(results.xyxy[0], results.xyxy[0][:, 4], results.xyxy[0][:, 5]):
         if conf.item() > 0.5:
             cls_name = LABELS[int(cls.item())]
             if cls_name in ['bike', 'car', 'van']:
-                vehicle_boxes.append(tensor_to_numpy(xyxy))  # 转换为 NumPy 数组
+                vehicle_boxes.append(xyxy)
             elif cls_name == 'parking':
-                parking_boxes.append(tensor_to_numpy(xyxy))  # 转换为 NumPy 数组
+                parking_boxes.append(xyxy)
 
-    # 遍历每个车辆和每个车位，判断是否正确停放
-    # 遍历每个车辆和每个车位，判断是否正确停放
-    result = []
+    # 检查车辆停放情况
+    parked_properly = False
     for vehicle_box in vehicle_boxes:
-        parked_properly = False
         for parking_box in parking_boxes:
             iou = calculate_iou(vehicle_box, parking_box)
             if iou > 0.3:
                 parked_properly = True
                 break
         if parked_properly:
-            result.append({'vehicle_box': vehicle_box, 'parked_properly': '正确'})
-        else:
-            result.append({'vehicle_box': vehicle_box, 'parked_properly': '错误'})
-    # Assuming 'result' is the NumPy array you're trying to jsonify
-    result_list = result.tolist()
-    # Now jsonify the list
-    return jsonify({'objects': result_list})
+            break
+
+    # 构建结果消息
+    if parked_properly:
+        result_message = { "file_name": photo.name,"status": "Correctly parked"}
+    else:
+        result_message = { "file_name": photo.name,"status": "Improperly parked"}
+
+    # 将结果消息添加到结果列表中
+    results_list.append(result_message)
+
+    # 将结果列表转换为JSON格式
+    result_json = json.dumps(results_list)
+
+    # 返回JSON数据给前端
+    return result_json
 
 
 if __name__ == '__main__':
